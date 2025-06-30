@@ -1,0 +1,15 @@
+{
+  "name": "professionalbackend",
+  "version": "1.0.0",
+  "description": "professional backend setup",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "becoming",
+    "pro"
+  ],
+  "author": "Abhijeet Dash",
+  "license": "ISC"
+}
