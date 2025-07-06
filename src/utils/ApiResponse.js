@@ -7,6 +7,6 @@ class ApiResponse{
     }
 }
 
-
+//Standard structure of apiresponse
 
 export {ApiResponse}
