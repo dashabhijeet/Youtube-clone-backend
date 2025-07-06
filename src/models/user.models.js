@@ -90,6 +90,6 @@ userSchema.methods.generateRefreshToken=function(){
     )
 }
 
-
-
+const g="HELLOOOOO";
+ 
 export const User=mongoose.model("User",userSchema);
