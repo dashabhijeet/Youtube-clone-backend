@@ -15,4 +15,14 @@ app.use(express.urlencoded({extended:true,limit:"16kb"}))   //url encoded format
 app.use(express.static("public"));  //To access public assets, need not necessary public any name can be given
 app.use(cookieParser())  //To access cookies from user's browser and make edits as well.
 
+
+//routes import
+
+import userRouter from './routes/user.routes.js';
+
+
+//routes declaration
+app.use("/api/v1/users",userRouter)
+
+//    http://localhost:8000/api/v1/users/register
 export {app}
