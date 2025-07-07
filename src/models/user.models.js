@@ -23,7 +23,7 @@ const userSchema=new Schema({
     fullName:{
         type:String,
         required:true,
-        trime:true,
+        trim:true,
         index:true
     },
     avatar:{
