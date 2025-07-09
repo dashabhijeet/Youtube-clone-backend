@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { loginUser,logOutUser, registerUser,refreshAccessToken } from "../controllers/user.controller.js";
+import { loginUser,logOutUser, registerUser,refreshAccessToken,updateUserAvatar, updateUserCoverImage } from "../controllers/user.controller.js";
 import {upload} from "../middlewares/multer.middleware.js";
 import { verifyJWT } from "../middlewares/auth.middleware.js";
 
@@ -23,6 +23,16 @@ router.route("/register").post(
 router.route("/login").post(loginUser)
 
 //secured routes
+router.route("/updateAvatar").post(
+    verifyJWT,
+    upload.single("avatar"),  // single takes only string name no object
+    updateUserAvatar);
+
+router.route("/updateCoverImage").post(
+    verifyJWT,
+    upload.single("coverImage"),
+    updateUserCoverImage
+);
 
 router.route("/logout").post(verifyJWT,logOutUser);
 router.route("/refresh-token").post(refreshAccessToken);

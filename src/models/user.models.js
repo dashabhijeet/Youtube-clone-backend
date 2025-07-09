@@ -1,6 +1,7 @@
 import mongoose,{Schema} from "mongoose";
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
+import { ApiError } from "../utils/ApiError.js";
 
 const userSchema=new Schema({
     username:{
@@ -27,11 +28,22 @@ const userSchema=new Schema({
         index:true
     },
     avatar:{
-        type: String, //cloudinary url
-        required:true
+        url:{
+            type:String  //cloudinary url
+        },
+        public_id:{
+
+            type: String, //cloudinary public_id for deletion
+        },
+        // required:true,
     },
     coverImage:{
-         type: String, //cloudinary url
+        url:{
+            type:String     //cloudinary url
+        },
+        public_id:{
+            type:String    //cloudinary public_id for deletion
+        }
     },
     watchHistory:[
         {
@@ -52,6 +64,12 @@ const userSchema=new Schema({
 userSchema.pre("save",async function(next) {
     if(!this.isModified("password")) return next();
     this.password=await bcrypt.hash(this.password,10);
+    next();
+})
+
+userSchema.pre("save",async function(next){
+    if(!this.avatar || !this.avatar.url || !this.avatar.public_id)
+        throw new ApiError(405,"Either avatar, or Avatar url or public_id, or both not present");
     next();
 })
 

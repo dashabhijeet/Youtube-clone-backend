@@ -36,7 +36,24 @@ cloudinary.config({
         }
     }
 
-    export {uploadOnCloudinary};
+    const deleteFromCloudinary=async(public_id)=>{
+        try {
+            // console.log("lalalala",public_id);
+            if(!public_id) return null;
+            const response=await cloudinary.uploader.destroy(public_id)
+            // console.log("Deleted",response);
+            return response;
+        } catch (error) {
+            console.log(error("Cloudinary couldn't delete",error));
+        return null;
+        }
+        
+    }
+
+export {
+    uploadOnCloudinary,
+    deleteFromCloudinary
+};
 // Upload an image
 //         const uploadResult = await cloudinary.uploader
 //         .upload(
