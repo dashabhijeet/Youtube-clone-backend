@@ -44,7 +44,7 @@ cloudinary.config({
             // console.log("Deleted",response);
             return response;
         } catch (error) {
-            console.log(error("Cloudinary couldn't delete",error));
+            console.error("Cloudinary couldn't delete",error);
         return null;
         }
         
