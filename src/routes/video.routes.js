@@ -16,7 +16,8 @@ router.use(verifyJWT); // Apply verifyJWT middleware to all routes in this file
 router
     .route("/")
     .get(getAllVideos)
-    .post(
+
+router.route("/:id").post(
         upload.fields([
             {
                 name: "videoFile",
@@ -35,7 +36,17 @@ router
     .route("/:videoId")
     .get(getVideoById)
     .delete(deleteVideo)
-    .patch(upload.single("thumbnail"), updateVideo);
+    .patch(upload.fields([
+            {
+                name: "videoFile",
+                maxCount: 1,
+            },
+            {
+                name: "thumbnail",
+                maxCount: 1,
+            },
+            
+        ]), updateVideo);
 
 router.route("/toggle/publish/:videoId").patch(togglePublishStatus);
 

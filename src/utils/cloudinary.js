@@ -36,12 +36,14 @@ cloudinary.config({
         }
     }
 
-    const deleteFromCloudinary=async(public_id)=>{
+    const deleteFromCloudinary=async(public_id,resource_type="image")=>{
         try {
-            // console.log("lalalala",public_id);
+            console.log("lalalala",public_id);
             if(!public_id) return null;
-            const response=await cloudinary.uploader.destroy(public_id)
-            // console.log("Deleted",response);
+            const response=await cloudinary.uploader.destroy(public_id,{
+                resource_type:resource_type,
+            })
+            console.log("Deleted",response);
             return response;
         } catch (error) {
             console.error("Cloudinary couldn't delete",error);
