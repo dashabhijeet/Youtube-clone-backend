@@ -277,8 +277,10 @@ const togglePublishStatus = asyncHandler(async (req, res) => {
         throw new ApiError(400, "videoId is required")
     }
     const video=await Video.findById(videoId);
+    
     if(!video) 
         throw new ApiError(404, "Video not found")
+
     video.isPublished=!video.isPublished;
     video.save({validateBeforeSave:false});
 
