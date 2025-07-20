@@ -1,165 +1,143 @@
-import mongoose, {isValidObjectId} from "mongoose"
-import {Playlist} from "../models/playlist.model.js"
-import {Video} from "../models/video.models.js"
-import {ApiError} from "../utils/ApiError.js"
-import {ApiResponse} from "../utils/ApiResponse.js"
-import {asyncHandler} from "../utils/asyncHandler.js"
-
+import mongoose from "mongoose";
+import { isValidObjectId } from "mongoose";
+import { Playlist } from "../models/playlist.model.js";
+import { Video } from "../models/video.models.js";
+import { ApiError } from "../utils/ApiError.js";
+import { ApiResponse } from "../utils/ApiResponse.js";
+import { asyncHandler } from "../utils/asyncHandler.js";
+import { checkOwnership } from "../utils/checkOwnership.js";
 
 const createPlaylist = asyncHandler(async (req, res) => {
-    const {name, description} = req.body
+  const { name, description } = req.body;
 
-    //TODO: create playlist
-    if(!name)
-        throw new ApiError(400,"Playlist name is mandatory.");
+  if (!name) throw new ApiError(400, "Playlist name is mandatory.");
 
-    const user=req.user?._id;
+  const user = req.user?._id;
+  if (!user) throw new ApiError(401, "User not authenticated.");
 
-    const playlistExists = await Playlist.findOne({
-  name: name,
-  owner: user
+  const playlistExists = await Playlist.findOne({
+    name,
+    owner: user,
+  });
+
+  if (playlistExists)
+    throw new ApiError(409, "Playlist with same name already exists.");
+
+  const playlist = await Playlist.create({
+    name,
+    description,
+    owner: user,
+    addedVideos: [],
+  });
+
+  return res
+    .status(200)
+    .json(new ApiResponse(200, playlist, "Playlist created successfully"));
 });
 
-
-    if(playlistExists)
-        throw new ApiError(404,"Playlist with same name already exists.");
-
-    const playlist=await Playlist.create({
-        name,
-        description,
-        owner:user,
-        addedVideos:[],
-    })
-
-    return res
-    .status(200)
-    .json(
-        new ApiResponse(200,playlist,"Playlist created successfully")
-    );
-
-
-})
-
 const getUserPlaylists = asyncHandler(async (req, res) => {
-    const {userId} = req.params
-    //TODO: get user playlists
+  const { userId } = req.params;
 
-    const playlistsOfUser=await Playlist.aggregate([
-        {
-            $match:{
-                owner:new mongoose.Types.ObjectId(userId)
-            }
-        },
-        {
-            $project:{
-                name:1,
-                description:1,
-                owner:1,
-                addedVideos:1
-            }
-        }
-    ])
+  if (!isValidObjectId(userId))
+    throw new ApiError(400, "Invalid user ID");
 
-    return res
+  const playlistsOfUser = await Playlist.aggregate([
+    {
+      $match: {
+        owner: new mongoose.Types.ObjectId(userId),
+      },
+    },
+    {
+      $project: {
+        name: 1,
+        description: 1,
+        owner: 1,
+        addedVideos: 1,
+      },
+    },
+  ]);
+
+  return res
     .status(200)
-    .json(
-        new ApiResponse(200,playlistsOfUser,"Playlists fetched successfully.")
-    )
-})
+    .json(new ApiResponse(200, playlistsOfUser, "Playlists fetched successfully."));
+});
 
 const getPlaylistById = asyncHandler(async (req, res) => {
-    const {playlistId} = req.params
-    //TODO: get playlist by id
+  const { playlistId } = req.params;
 
-    const playlist=await Playlist.findById(playlistId);
+  if (!isValidObjectId(playlistId))
+    throw new ApiError(400, "Invalid playlist ID");
 
-    if(!playlist)
-        throw new ApiError(404,"playlist does not exist witht the given id");
+  const playlist = await Playlist.findById(playlistId);
 
-    return res
+  if (!playlist)
+    throw new ApiError(404, "Playlist does not exist with the given ID");
+
+  return res
     .status(200)
-    .json(
-        new ApiResponse(200,playlist,"Particular playlist fetched successfully.")
-    )
-})
+    .json(new ApiResponse(200, playlist, "Particular playlist fetched successfully."));
+});
 
 const addVideoToPlaylist = asyncHandler(async (req, res) => {
-    const {playlistId, videoId} = req.params;
+  const { playlistId, videoId } = req.params;
 
-    const fetchPlaylist=await Playlist.findById(playlistId);
+  const playlist = await checkOwnership(playlistId, Playlist, req.user._id);
 
-    const videoExists=await Video.findById(videoId);
+  if (!isValidObjectId(videoId)) {
+    throw new ApiError(400, "Invalid video ID");
+  }
 
-    if(!videoExists)
-        throw new ApiError(400,"Video does not exist.");
+  const videoExists = await Video.findById(videoId);
+  if (!videoExists) throw new ApiError(404, "Video does not exist.");
 
-    if(!fetchPlaylist)
-        throw new ApiError(404,"Playlist with such id does not exist.");
-    
-    if (!fetchPlaylist.addedVideos.includes(videoId)) {
-  fetchPlaylist.addedVideos.push(videoId);
-}
+  if (!playlist.addedVideos.map(id => id.toString()).includes(videoId)) {
+    playlist.addedVideos.push(videoId);
+  }
 
-const response = await fetchPlaylist.save({ validateBeforeSave: false });
+  const response = await playlist.save({ validateBeforeSave: false });
 
-    return res
+  return res
     .status(200)
-    .json(
-        new ApiResponse(200,response,"Video added to playlist successfully.")
-    )
-})
+    .json(new ApiResponse(200, response, "Video added to playlist successfully."));
+});
 
 const removeVideoFromPlaylist = asyncHandler(async (req, res) => {
-    const {playlistId, videoId} = req.params;
+  const { playlistId, videoId } = req.params;
 
-    const fetchPlaylist=await Playlist.findById(playlistId);
+  const playlist = await checkOwnership(playlistId, Playlist, req.user._id);
 
-    if(!fetchPlaylist)
-        throw new ApiError(404,"Playlist with such id does not exist.");
+  if (!isValidObjectId(videoId)) {
+    throw new ApiError(400, "Invalid video ID");
+  }
 
-    const videos=fetchPlaylist.addedVideos;
+  playlist.addedVideos = playlist.addedVideos.filter(
+    (id) => id.toString() !== videoId
+  );
 
-    if (videos.includes(videoId)) 
-    {
-        videos.splice(videos.indexOf(videoId),1);
-    }
+  const response = await playlist.save({ validateBeforeSave: false });
 
-const response = await fetchPlaylist.save({ validateBeforeSave: false });
-
-    return res
+  return res
     .status(200)
-    .json(
-        new ApiResponse(200,response,"Video removed from playlist successfully.")
-    )
-
-
-})
+    .json(new ApiResponse(200, response, "Video removed from playlist successfully."));
+});
 
 const deletePlaylist = asyncHandler(async (req, res) => {
-    const {playlistId} = req.params
-    // TODO: delete playlist
-    const playlistExists=await Playlist.findById(playlistId);
+  const { playlistId } = req.params;
 
-    if(!playlistExists)
-        throw new ApiError(404,"playlist does not exist to delete.");
+  await checkOwnership(playlistId, Playlist, req.user._id);
 
-    const response=await Playlist.findByIdAndDelete(playlistId);
+  const response = await Playlist.findByIdAndDelete(playlistId);
 
-    return res
+  return res
     .status(200)
-    .json(
-        new ApiResponse(200,response,"Playlist deleted successfully.")
-    )
-})
+    .json(new ApiResponse(200, response, "Playlist deleted successfully."));
+});
 
 const updatePlaylist = asyncHandler(async (req, res) => {
   const { playlistId } = req.params;
   const { name, description } = req.body;
 
-  const playlist = await Playlist.findById(playlistId);
-
-  if (!playlist)
-    throw new ApiError(404, "Playlist does not exist to update.");
+  const playlist = await checkOwnership(playlistId, Playlist, req.user._id);
 
   playlist.name = name || playlist.name;
   playlist.description = description || playlist.description;
@@ -171,13 +149,12 @@ const updatePlaylist = asyncHandler(async (req, res) => {
     .json(new ApiResponse(200, updated, "Playlist details updated successfully."));
 });
 
-
 export {
-    createPlaylist,
-    getUserPlaylists,
-    getPlaylistById,
-    addVideoToPlaylist,
-    removeVideoFromPlaylist,
-    deletePlaylist,
-    updatePlaylist
-}
+  createPlaylist,
+  getUserPlaylists,
+  getPlaylistById,
+  addVideoToPlaylist,
+  removeVideoFromPlaylist,
+  deletePlaylist,
+  updatePlaylist,
+};

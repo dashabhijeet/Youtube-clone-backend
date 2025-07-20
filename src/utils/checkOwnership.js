@@ -1,10 +1,10 @@
-import { ApiError } from "../utils/ApiError";
-import { asyncHandler } from "../utils/asyncHandler";
+import { ApiError } from "./ApiError.js";
+import { asyncHandler } from "./asyncHandler.js";
 
 // utils/checkOwnership.js
 
 import mongoose from "mongoose";
-import { ApiError } from "./ApiError.js";
+
 
 /**
  * Verifies ownership of any Mongoose document with an `owner` field.
@@ -15,7 +15,7 @@ import { ApiError } from "./ApiError.js";
  * @returns {Promise<Object>} - The found document if ownership is verified.
  * @throws {ApiError} - If ID is invalid, not found, or unauthorized.
  */
-export const checkOwnership = async (resourceId, model, userId) => {
+export const checkOwnership = asyncHandler(async (resourceId, model, userId) => {
   if (!mongoose.Types.ObjectId.isValid(resourceId)) {
     throw new ApiError(400, "Invalid resource ID.");
   }
@@ -31,4 +31,4 @@ export const checkOwnership = async (resourceId, model, userId) => {
   }
 
   return document;
-};
+});
