@@ -45,12 +45,20 @@ const userSchema=new Schema({
             type:String    //cloudinary public_id for deletion
         }
     },
-    watchHistory:[
-        {
-            type:Schema.Types.ObjectId,
-            ref:"Video"
-        }
-    ],
+   watchHistory: [
+  {
+    video: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Video",
+      required: true,
+    },
+    watchedAt: {
+      type: Date,
+      default: Date.now,
+    },
+  }
+]
+,
     password:{
         type:String,
         required:[true,'Password is required']

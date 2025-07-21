@@ -1,6 +1,7 @@
 import { asyncHandler } from "../utils/asyncHandler.js";
 import { ApiError } from "../utils/ApiError.js";
 import { User } from "../models/user.models.js";
+import { Video } from "../models/video.models.js"
 import { uploadOnCloudinary,deleteFromCloudinary } from "../utils/cloudinary.js";
 import { ApiResponse } from "../utils/ApiResponse.js";
 import fs from "fs";
@@ -137,7 +138,7 @@ const loginUser=asyncHandler(async (req,res) => {
         throw new ApiError(400,"username or email is required.");
 
    const user=await User.findOne({
-        $or:[ {username} , {email} ]
+         username ,email 
     })  
 
     if(!user){
@@ -409,7 +410,7 @@ const getUserChannelProfile=asyncHandler( async(req,res) => {
     const channel=await User.aggregate([
         {
             $match:{
-                username:username?.toLowerCase()
+                username:username
             }
         },
         {
@@ -430,33 +431,36 @@ const getUserChannelProfile=asyncHandler( async(req,res) => {
     },
     {
         $addFields:{
-            subscribersCount:{
-                $size:"$subscribers"
-            },
-            channelsSubscribedToCount:{
-                $size:"$subscribedTo"
-            },
-            isSubscribed:{
-                $condition:{
-                    if:{$in: [req.user?._id,"subscribers.subscriber"]},
-                    then:true,
-                    else:false
-                }
-            }
-        }
-    },
+            subscribersCount:{$size:"$subscribers"},
+            channelsSubscribedToCount:{$size:"$subscribedTo"},
+            isSubscribed: {
+  $in: [
+    req.user._id,
     {
-        $project:{
-            fullName:1,
-            username:1,
-            subscribersCount:1,
-            channelsSubscribedToCount:1,
-            isSubscribed:1,
-            avatar:1,
-            coverImage:1,
-            email:1
+      $map: {
+        input: "$subscribedTo",
+        as: "s",
+        in: "$$s.subscriber"
+      }
+    }
+  ]
+}
+
         }
     }
+    
+    // {
+    //     $project:{
+    //         fullName:1,
+    //         username:1,
+    //         subscribersCount:1,
+    //         channelsSubscribedToCount:1,
+    //         isSubscribed:1,
+    //         avatar:1,
+    //         coverImage:1,
+    //         email:1
+    //     }
+    // }
     ])
 
     if(!channel?.length)
@@ -465,64 +469,111 @@ const getUserChannelProfile=asyncHandler( async(req,res) => {
     return res
     .status(200)
     .json(
-        new ApiResponse(200,channel[0],"User channel fetched successfully.")
+        new ApiResponse(200,channel[0],"User channel details fetched successfully.")
     );
 });
 
-const getWatchHistory=asyncHandler(async(req,res) => {
-    const user = await User.aggregate([
-        {
-            $match:{
-                _id: new mongoose.Types.ObjectId(req.user._id)
-            }
-        },
-        {
-            $lookup:{
-                from:"videos",
-                localField:"watchHistory",
-                foreignField:"_id",
-                as:"watchHistory",
-                pipeline:[
-                    {
-                        $lookup:{
-                            from:"users",
-                            localField:"owner",
-                            foreignField:"_id",
-                            as:"owner",
-                            pipeline:[
-                                {
-                                    $project:{
-                                        fullName:1,
-                                        username:1,
-                                        avatar:1
-                                    }
-                                }
-                            ]
-                        }
-                    },
-                    {
-                        $addFields:{
-                            owner:{
-                                $first:"$owner"
-                            }
-                        }
-                    }
-                ]
-            }
+const getWatchHistory = asyncHandler(async (req, res) => {
+  const user = await User.aggregate([
+    {
+      $match: {
+        _id: new mongoose.Types.ObjectId(req.user._id)
+      }
+    },
+    {
+      $unwind: "$watchHistory"
+    },
+    {
+      $lookup: {
+        from: "videos",
+        localField: "watchHistory.video",
+        foreignField: "_id",
+        as: "videoDetails"
+      }
+    },
+    {
+      $unwind: "$videoDetails"
+    },
+    {
+      $lookup: {
+        from: "users",
+        localField: "videoDetails.owner",
+        foreignField: "_id",
+        as: "videoDetails.owner",
+        pipeline: [
+      {
+        $project: {
+          fullName: 1,
+          username: 1,
+          avatar: 1 // Only include what you want
         }
-    ])
+      }
+    ]
 
-    return res
-    .status(200)
-    .json(
-        new ApiResponse(
-            200,
-            user[0].watchHistory,
-            "Watch History fetched successfully"
-        )
+      }
+    },
+    {
+      $addFields: {
+        "videoDetails.owner": {
+          $first: "$videoDetails.owner"
+        }
+      }
+    },
+    {
+      $project: {
+        _id: 0,
+        watchedAt: "$watchHistory.watchedAt",
+        video: "$videoDetails",
+      }
+    },
+    {
+      $sort: { watchedAt: -1 }
+    }
+  ]);
+
+  return res.status(200).json(
+    new ApiResponse(
+      200,
+      user,
+      "Watch History fetched successfully"
     )
-})
+  );
+});
 
+
+const addToWatchHistory = asyncHandler(async (req, res) => {
+  const userId = req.user._id;
+  const { videoId } = req.params;
+
+  const videoExists = await Video.findById(videoId);
+  if (!videoExists) throw new ApiError(404, "Video not found");
+
+  const user = await User.findById(userId);
+
+  const video=videoId;
+
+  // Remove the video if already present in history
+  user.watchHistory = user.watchHistory.filter(
+    (entry) => entry.video.toString() !== videoId.toString()
+  );
+
+  // Add the video to the top
+  user.watchHistory.unshift({
+    video: videoId,
+    watchedAt: new Date(),
+  });
+
+  // Optional: Keep history length to max 50
+  if (user.watchHistory.length > 50) {
+    user.watchHistory = user.watchHistory.slice(0, 50);
+  }
+
+  await user.save();
+
+  return res.status(200).json(
+    new ApiResponse(200, user.watchHistory, "Watch history updated")
+  );
+});
 
 
 
@@ -539,5 +590,6 @@ export {
     updateUserAvatar,
     updateUserCoverImage,
     getUserChannelProfile,
-    getWatchHistory
+    getWatchHistory,
+    addToWatchHistory
 };
