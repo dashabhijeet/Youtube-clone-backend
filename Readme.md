@@ -6,7 +6,8 @@ This is a full-featured backend for a YouTube-like video sharing platform. It in
 
 ## 📁 Project Structure
 
-<img width="1064" height="326" alt="image" src="https://github.com/user-attachments/assets/d522b469-8af5-4a73-8fba-a0d8d9adb847" />
+<img width="724" height="172" alt="image" src="https://github.com/user-attachments/assets/aa87290b-dbde-4bba-9072-693c22a414b9" />
+
 
 
 ---
