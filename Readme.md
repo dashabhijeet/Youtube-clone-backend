@@ -1,4 +1,4 @@
-# 🎬 Video Sharing Backend API
+# 🎬 Youtube-clone backend
 
 This is a full-featured backend for a YouTube-like video sharing platform. It includes user authentication, video upload via Cloudinary, subscription system, likes, tweets, comments, and watch history management.
 
