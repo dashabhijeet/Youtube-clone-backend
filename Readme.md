@@ -60,48 +60,39 @@ npm run dev
 The server runs on http://localhost:8000.
 
 ---
-📦 API Endpoints
-- 🔑 Auth
- - POST /api/v1/auth/register — Register user
- - POST /api/v1/auth/login — Login
- - GET /api/v1/auth/logout — Logout
+### 📦 API Endpoint Table
 
-- 📹 Videos
- - POST /api/v1/videos/:id — Upload video (form-data)
- - PATCH /api/v1/videos/:videoId — Update video
- - DELETE /api/v1/videos/:videoId — Delete video
- - GET /api/v1/videos/ — List all videos
- - PATCH /api/v1/videos/toggle/publish/:videoId — Toggle publish status
+| **Module**        | **Method** | **Endpoint**                                     | **Description**                             | **Auth Required** |
+|------------------|------------|--------------------------------------------------|---------------------------------------------|-------------------|
+| 🔐 **Auth**        | `POST`     | `/api/v1/auth/register`                          | Register a new user                         | ❌                |
+|                  | `POST`     | `/api/v1/auth/login`                             | Login and receive tokens                    | ❌                |
+|                  | `GET`      | `/api/v1/auth/logout`                            | Logout and clear tokens                     | ✅                |
+| 📹 **Videos**      | `POST`     | `/api/v1/videos/:id`                             | Upload video & thumbnail via form-data      | ✅                |
+|                  | `GET`      | `/api/v1/videos/`                                | Get all published videos                    | ❌                |
+|                  | `PATCH`    | `/api/v1/videos/:videoId`                        | Update a specific video                     | ✅                |
+|                  | `DELETE`   | `/api/v1/videos/:videoId`                        | Delete a video                              | ✅                |
+|                  | `PATCH`    | `/api/v1/videos/toggle/publish/:videoId`         | Toggle publish/unpublish a video            | ✅                |
+| ❤️ **Likes**       | `PATCH`    | `/api/v1/likes/toggle/:videoId`                  | Like or Unlike a video                      | ✅                |
+| 💬 **Comments**    | `POST`     | `/api/v1/comments/:videoId`                      | Add a comment on a video                    | ✅                |
+|                  | `PATCH`    | `/api/v1/comments/:commentId`                    | Edit a comment                              | ✅                |
+| 🧵 **Tweets**      | `POST`     | `/api/v1/tweets/`                                | Post a new tweet                            | ✅                |
+|                  | `GET`      | `/api/v1/tweets/user/:userId`                    | Get all tweets of a user                    | ✅                |
+| 🧑‍🤝‍🧑 **Subscriptions** | `PATCH`    | `/api/v1/subscriptions/toggle/:channelId`        | Subscribe or Unsubscribe from a channel     | ✅                |
+|                  | `GET`      | `/api/v1/subscriptions/channel/:channelId`       | List all subscribers of a channel           | ✅                |
+|                  | `GET`      | `/api/v1/subscriptions/user/:subscriberId`       | List all channels a user is subscribed to   | ✅                |
+| 🕒 **Watch History** | `GET`      | `/api/v1/users/history`                          | Get current user’s watch history            | ✅                |
+|                  | `PATCH`    | `/api/v1/users/history`                          | Add a video to user’s watch history         | ✅                |
+| 📊 **Channel Stats** | `GET`      | `/api/v1/users/channel/stats`                   | Get total stats for the logged-in channel   | ✅                |
 
-- 🧑‍🤝‍🧑 Subscriptions
- - PATCH /api/v1/subscriptions/toggle/:channelId — Subscribe/Unsubscribe
- - GET /api/v1/subscriptions/channel/:channelId — Subscribers of a channel
- - GET /api/v1/subscriptions/user/:subscriberId — Channels subscribed to
 
-- ❤️ Likes
- - PATCH /api/v1/likes/toggle/:videoId — Like/Unlike a video
-
-🗣 Comments & Tweets
-- POST /api/v1/comments/:videoId
-- PATCH /api/v1/comments/:commentId
-- POST /api/v1/tweets/ — Tweet
-- GET /api/v1/tweets/user/:userId
-
-- 🕒 Watch History
- - GET /api/v1/users/history — Get watch history
- - PATCH /api/v1/users/history — Add to watch history
-
-- 📊 Channel Stats
- - GET /api/v1/users/channel/stats — Get total views, likes, subscribers, etc.
-
-- 📷 Upload Notes
+### 📷 Upload Notes
 Video and thumbnail uploads use Cloudinary. Use multipart/form-data for these routes:
    - videoFile: for the video
    - thumbnail: for the thumbnail
    - title, description: as plain text fields
   
 ---
--  📌 Tech Stack
+### 📌 Tech Stack
     - Node.js + Express
     - MongoDB + Mongoose
     - Cloudinary (Media Storage)
@@ -118,7 +109,8 @@ Pull requests are welcome. For major changes, please open an issue first to disc
  MIT
 
 ---
-# 🧑‍💻 Author - Abhijeet Dash
+# 🧑‍💻 Author - 
+     Abhijeet Dash
 ---
 
 Let me know if you'd like a **Postman collection** to go with this or need a **frontend setup guide** too.
