@@ -31,99 +31,86 @@ This is a full-featured backend for a YouTube-like video sharing platform. It in
 
 ```bash```
 git clone https://github.com/dashabhijeet/Youtube-clone.git
-cd Youtube-clone
+- cd Youtube-clone
 
+---
 ### 2. Install Dependencies
 
 npm install
 
+---
 ### 3. Create .env File
 
 PORT=8000
 MONGODB_URI=mongodb+srv://<your-db-connection-string>
-JWT_SECRET=your_jwt_secret
+- JWT_SECRET=your_jwt_secret
 
-CLOUDINARY_CLOUD_NAME=your_cloud_name
-CLOUDINARY_API_KEY=your_api_key
-CLOUDINARY_API_SECRET=your_api_secret
+- CLOUDINARY_CLOUD_NAME=your_cloud_name
+- CLOUDINARY_API_KEY=your_api_key
+- CLOUDINARY_API_SECRET=your_api_secret
 
+---
 ### 4. Start the Server
 
 npm run dev
 
 The server runs on http://localhost:8000.
 
+---
 📦 API Endpoints
-🔑 Auth
+- 🔑 Auth
 POST /api/v1/auth/register — Register user
-
 POST /api/v1/auth/login — Login
-
 GET /api/v1/auth/logout — Logout
 
-📹 Videos
+- 📹 Videos
 POST /api/v1/videos/:id — Upload video (form-data)
-
 PATCH /api/v1/videos/:videoId — Update video
-
 DELETE /api/v1/videos/:videoId — Delete video
-
 GET /api/v1/videos/ — List all videos
-
 PATCH /api/v1/videos/toggle/publish/:videoId — Toggle publish status
 
-🧑‍🤝‍🧑 Subscriptions
+- 🧑‍🤝‍🧑 Subscriptions
 PATCH /api/v1/subscriptions/toggle/:channelId — Subscribe/Unsubscribe
-
 GET /api/v1/subscriptions/channel/:channelId — Subscribers of a channel
-
 GET /api/v1/subscriptions/user/:subscriberId — Channels subscribed to
 
-❤️ Likes
-PATCH /api/v1/likes/toggle/:videoId — Like/Unlike a video
+- ❤️ Likes
+ PATCH /api/v1/likes/toggle/:videoId — Like/Unlike a video
 
 🗣 Comments & Tweets
 POST /api/v1/comments/:videoId
-
 PATCH /api/v1/comments/:commentId
-
 POST /api/v1/tweets/ — Tweet
-
 GET /api/v1/tweets/user/:userId
 
-🕒 Watch History
+- 🕒 Watch History
 GET /api/v1/users/history — Get watch history
-
 PATCH /api/v1/users/history — Add to watch history
 
-📊 Channel Stats
+- 📊 Channel Stats
 GET /api/v1/users/channel/stats — Get total views, likes, subscribers, etc.
 
-📷 Upload Notes
+- 📷 Upload Notes
 Video and thumbnail uploads use Cloudinary. Use multipart/form-data for these routes:
-
-videoFile: for the video
-
-thumbnail: for the thumbnail
-
-title, description: as plain text fields
-
-📌 Tech Stack
+    videoFile: for the video
+    thumbnail: for the thumbnail
+    title, description: as plain text fields
+  
+---
+-  📌 Tech Stack
 Node.js + Express
-
 MongoDB + Mongoose
-
 Cloudinary (Media Storage)
-
 JWT (Authentication)
-
 Multer (File Upload Handling)
-
 Mongoose Aggregation (Analytics)
 
+---
 🙌 Contributing
 Pull requests are welcome. For major changes, please open an issue first to discuss what you would like to change.
 
+---
 📄 License
 MIT
 
