@@ -59,9 +59,9 @@ The server runs on http://localhost:8000.
 ---
 📦 API Endpoints
 - 🔑 Auth
-POST /api/v1/auth/register — Register user
-POST /api/v1/auth/login — Login
-GET /api/v1/auth/logout — Logout
+    POST /api/v1/auth/register — Register user
+    POST /api/v1/auth/login — Login
+    GET /api/v1/auth/logout — Logout
 
 - 📹 Videos
 POST /api/v1/videos/:id — Upload video (form-data)
