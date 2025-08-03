@@ -30,8 +30,7 @@ This is a full-featured backend for a YouTube-like video sharing platform. It in
 
 ### 1. Clone the Repository
 
-```bash```
-git clone https://github.com/dashabhijeet/Youtube-clone.git
+- git clone https://github.com/dashabhijeet/Youtube-clone-backend.git
 - cd Youtube-clone
 
 ---
