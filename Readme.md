@@ -62,9 +62,9 @@ The server runs on http://localhost:8000.
 ---
 ### 📦 API Endpoint Table
 
-| **Module**        | **Method** | **Endpoint**                                      | **Description**                                        | **Auth Required** |
+| **Module**       | **Method** | **Endpoint**                                      | **Description**                                        | **Auth Required** |
 |------------------|------------|---------------------------------------------------|--------------------------------------------------------|-------------------|
-| 🔐 **Auth**        | `POST`     | `/api/v1/users/register`                          | Register a new user with avatar & cover                | ❌                |
+| 🔐 **Auth**      | `POST`     | `/api/v1/users/register`                          | Register a new user with avatar & cover                | ❌               |
 |                  | `POST`     | `/api/v1/users/login`                             | Login with credentials                                 | ❌                |
 |                  | `POST`     | `/api/v1/users/logout`                            | Logout and revoke tokens                               | ✅                |
 |                  | `POST`     | `/api/v1/users/refresh-token`                     | Refresh access token                                   | ❌                |
@@ -76,39 +76,32 @@ The server runs on http://localhost:8000.
 |                  | `GET`      | `/api/v1/users/c/:username`                       | Get user channel profile by username                   | ✅                |
 |                  | `GET`      | `/api/v1/users/history`                           | Get user's watch history                               | ✅                |
 |                  | `POST`     | `/api/v1/users/history/:videoId`                  | Add video to watch history                             | ✅                |
-
-| 📹 **Videos**      | `GET`      | `/api/v1/videos/`                                 | Get all published videos                               | ✅                |
+| 📹 **Videos**    | `GET`      | `/api/v1/videos/`                                 | Get all published videos                               | ✅                |
 |                  | `POST`     | `/api/v1/videos/:id`                              | Upload a new video with form-data                      | ✅                |
 |                  | `GET`      | `/api/v1/videos/:videoId`                         | Get video by ID                                        | ✅                |
 |                  | `PATCH`    | `/api/v1/videos/:videoId`                         | Update video (form-data support)                       | ✅                |
 |                  | `DELETE`   | `/api/v1/videos/:videoId`                         | Delete a video                                         | ✅                |
 |                  | `PATCH`    | `/api/v1/videos/toggle/publish/:videoId`          | Toggle publish/unpublish status                        | ✅                |
-
 | 🧑‍🤝‍🧑 **Subscriptions** | `POST`     | `/api/v1/subscriptions/c/:channelId`              | Subscribe/Unsubscribe to a channel                    | ✅                |
 |                  | `GET`      | `/api/v1/subscriptions/c/:channelId`              | Get list of channels a user is subscribed to          | ✅                |
 |                  | `GET`      | `/api/v1/subscriptions/u/:subscriberId`           | Get all subscribers of a channel                      | ✅                |
-
 | ❤️ **Likes**       | `POST`     | `/api/v1/likes/toggle/v/:videoId`                 | Toggle like/unlike for a video                        | ✅                |
 |                  | `POST`     | `/api/v1/likes/toggle/c/:commentId`               | Toggle like/unlike for a comment                      | ✅                |
 |                  | `POST`     | `/api/v1/likes/toggle/t/:tweetId`                 | Toggle like/unlike for a tweet                        | ✅                |
 |                  | `GET`      | `/api/v1/likes/videos`                            | Get all liked videos                                  | ✅                |
-
 | 💬 **Tweets**      | `POST`     | `/api/v1/tweets/`                                 | Post a tweet                                          | ✅                |
 |                  | `GET`      | `/api/v1/tweets/user/:userId`                     | Get all tweets of a user                              | ✅                |
 |                  | `PATCH`    | `/api/v1/tweets/:tweetId`                         | Update a tweet                                        | ✅                |
 |                  | `DELETE`   | `/api/v1/tweets/:tweetId`                         | Delete a tweet                                        | ✅                |
-
-| 📺 **Playlists**   | `POST`     | `/api/v1/playlist/`                              | Create a new playlist                                 | ✅                |
+| 📺 **Playlist**   | `POST`     | `/api/v1/playlist/`                              | Create a new playlist                                 | ✅                |
 |                  | `GET`      | `/api/v1/playlist/:playlistId`                   | Get playlist by ID                                    | ✅                |
 |                  | `PATCH`    | `/api/v1/playlist/:playlistId`                   | Update playlist details                               | ✅                |
 |                  | `DELETE`   | `/api/v1/playlist/:playlistId`                   | Delete playlist                                       | ✅                |
 |                  | `PATCH`    | `/api/v1/playlist/add/:videoId/:playlistId`      | Add a video to playlist                               | ✅                |
 |                  | `PATCH`    | `/api/v1/playlist/remove/:videoId/:playlistId`   | Remove video from playlist                            | ✅                |
 |                  | `GET`      | `/api/v1/playlist/user/:userId`                  | Get playlists of a user                               | ✅                |
-
 | 📊 **Dashboard**   | `GET`      | `/api/v1/dashboard/stats`                             | Get dashboard stats: views, videos, likes, subscribers| ✅                |
 |                  | `GET`      | `/api/v1/dashboard/videos`                            | Get videos uploaded by current user                   | ✅                |
-
 | 🔧 **Misc**        | `GET`      | `/api/v1/healthcheck/`                                  | Health check route                                    | ❌                |
 
 
