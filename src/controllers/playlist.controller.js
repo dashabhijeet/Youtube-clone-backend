@@ -6,12 +6,38 @@ import { ApiError } from "../utils/ApiError.js";
 import { ApiResponse } from "../utils/ApiResponse.js";
 import { asyncHandler } from "../utils/asyncHandler.js";
 import { checkOwnership } from "../utils/checkOwnership.js";
+import Joi from "joi";
 
+// Joi Schemas
+const createPlaylistSchema = Joi.object({
+  name: Joi.string().required(),
+  description: Joi.string().allow("").optional(),
+});
+
+const getUserPlaylistsSchema = Joi.object({
+  userId: Joi.string().required(),
+});
+
+const getPlaylistByIdSchema = Joi.object({
+  playlistId: Joi.string().required(),
+});
+
+const addOrRemoveVideoSchema = Joi.object({
+  playlistId: Joi.string().required(),
+  videoId: Joi.string().required(),
+});
+
+const updatePlaylistSchema = Joi.object({
+  name: Joi.string().optional(),
+  description: Joi.string().allow("").optional(),
+});
+
+// ✅ Create Playlist
 const createPlaylist = asyncHandler(async (req, res) => {
+  const { error } = createPlaylistSchema.validate(req.body);
+  if (error) throw new ApiError(400, error.details[0].message);
+
   const { name, description } = req.body;
-
-  if (!name) throw new ApiError(400, "Playlist name is mandatory.");
-
   const user = req.user?._id;
   if (!user) throw new ApiError(401, "User not authenticated.");
 
@@ -35,7 +61,11 @@ const createPlaylist = asyncHandler(async (req, res) => {
     .json(new ApiResponse(200, playlist, "Playlist created successfully"));
 });
 
+// ✅ Get all playlists of a user
 const getUserPlaylists = asyncHandler(async (req, res) => {
+  const { error } = getUserPlaylistsSchema.validate(req.params);
+  if (error) throw new ApiError(400, error.details[0].message);
+
   const { userId } = req.params;
 
   if (!isValidObjectId(userId))
@@ -62,7 +92,11 @@ const getUserPlaylists = asyncHandler(async (req, res) => {
     .json(new ApiResponse(200, playlistsOfUser, "Playlists fetched successfully."));
 });
 
+// ✅ Get playlist by ID
 const getPlaylistById = asyncHandler(async (req, res) => {
+  const { error } = getPlaylistByIdSchema.validate(req.params);
+  if (error) throw new ApiError(400, error.details[0].message);
+
   const { playlistId } = req.params;
 
   if (!isValidObjectId(playlistId))
@@ -78,9 +112,12 @@ const getPlaylistById = asyncHandler(async (req, res) => {
     .json(new ApiResponse(200, playlist, "Particular playlist fetched successfully."));
 });
 
+// ✅ Add video to playlist
 const addVideoToPlaylist = asyncHandler(async (req, res) => {
-  const { playlistId, videoId } = req.params;
+  const { error } = addOrRemoveVideoSchema.validate(req.params);
+  if (error) throw new ApiError(400, error.details[0].message);
 
+  const { playlistId, videoId } = req.params;
   const playlist = await checkOwnership(playlistId, Playlist, req.user._id);
 
   if (!isValidObjectId(videoId)) {
@@ -101,9 +138,12 @@ const addVideoToPlaylist = asyncHandler(async (req, res) => {
     .json(new ApiResponse(200, response, "Video added to playlist successfully."));
 });
 
+// ✅ Remove video from playlist
 const removeVideoFromPlaylist = asyncHandler(async (req, res) => {
-  const { playlistId, videoId } = req.params;
+  const { error } = addOrRemoveVideoSchema.validate(req.params);
+  if (error) throw new ApiError(400, error.details[0].message);
 
+  const { playlistId, videoId } = req.params;
   const playlist = await checkOwnership(playlistId, Playlist, req.user._id);
 
   if (!isValidObjectId(videoId)) {
@@ -121,9 +161,12 @@ const removeVideoFromPlaylist = asyncHandler(async (req, res) => {
     .json(new ApiResponse(200, response, "Video removed from playlist successfully."));
 });
 
+// ✅ Delete playlist
 const deletePlaylist = asyncHandler(async (req, res) => {
-  const { playlistId } = req.params;
+  const { error } = getPlaylistByIdSchema.validate(req.params);
+  if (error) throw new ApiError(400, error.details[0].message);
 
+  const { playlistId } = req.params;
   await checkOwnership(playlistId, Playlist, req.user._id);
 
   const response = await Playlist.findByIdAndDelete(playlistId);
@@ -133,7 +176,14 @@ const deletePlaylist = asyncHandler(async (req, res) => {
     .json(new ApiResponse(200, response, "Playlist deleted successfully."));
 });
 
+// ✅ Update playlist
 const updatePlaylist = asyncHandler(async (req, res) => {
+  const { error: paramsError } = getPlaylistByIdSchema.validate(req.params);
+  if (paramsError) throw new ApiError(400, paramsError.details[0].message);
+
+  const { error: bodyError } = updatePlaylistSchema.validate(req.body);
+  if (bodyError) throw new ApiError(400, bodyError.details[0].message);
+
   const { playlistId } = req.params;
   const { name, description } = req.body;
 
